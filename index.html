@@ -17,19 +17,32 @@
         </nav>
         <div class="container">
             <div class="card my-4 shadow">
-                <div class="card-body">
-                    
-                    <div class="row align-items-center">
-                        <div class="col-3">
-                            <button class="btn btn-primary">hydrogen</button>
-                        </div>
-                        <div class="col">
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="card-body row">
+                    <div class="col">
+                        <h4>Mass <small class="text-muted" id="mass">0</small></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="card my-4 shadow">
+                <div class="card-body row align-items-center">
+                    <div class="col-3">
+                        <button class="btn btn-primary" onclick="clickElement(1, 'hydrogen')">hydrogen</button>
+                    </div>
+                    <div class="col">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 10%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <span id="hydrogen">0</span>
                             </div>
                         </div>
                     </div>
-                    
+                </div>
+                <div class="card-body row">
+                    <div class="col" align="center">
+                        <button class="btn btn-secondary" onclick="addMass()">gain mass <span class="small" id="massCost">(11H)</span></button>
+                    </div>
+                    <!-- <div class="col" align="center">
+                        <button class="btn btn-secondary">gain mass</button>
+                    </div> -->
                 </div>
             </div>
             <div class="card my-4 shadow">
