@@ -100,9 +100,23 @@ function addMass() {
     }
     let nextCost = Math.floor(10 * Math.pow(1.1,universe.measures.mass.total));
     document.getElementById('massCost').innerText = `(${nextCost}H)`;
+} 
+
+
+// save game function
+function save() {
+    localStorage.setItem('save', JSON.stringify(universe));
+    console.log(JSON.parse(localStorage.getItem('save')));
 }
 
+// load game function
+function load() {
+    var gamesave = JSON.parse(localStorage.getItem('save'));
 
+    if (typeof gamesave.elements.hydrogen.total !== "undefined") universe.elements.hydrogen.total = gamesave.elements.hydrogen.total;
+    if (typeof gamesave.elements.helium.total !== "undefined") universe.elements.helium.total = gamesave.elements.helium.total;
+    if (typeof gamesave.measures.mass.total !== "undefined") universe.measures.mass.total = gamesave.measures.mass.total;
+}
 
 // functions sandbox
 /* 
