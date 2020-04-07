@@ -20,11 +20,6 @@ let universe = {
             total: 0,
             symbol: 's'
         },
-        length: {
-            name: 'length',
-            total: 0,
-            symbol: 'm'
-        },
         mass: {
             name: 'mass',
             total: 0,
