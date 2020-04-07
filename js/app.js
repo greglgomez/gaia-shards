@@ -92,7 +92,7 @@ function clickElement(number, element) {
     let targetElement = universe.elements[element]; // address element
     targetElement.total += number; // increment element total
     document.getElementById( element ).innerHTML = targetElement.total; // update interface with new total
-};
+}
 
 // acquire mass function
 function addMass() {
@@ -128,7 +128,9 @@ against universe.formations.[i].requires.hydrogen
 
 
 // game loop
-
+window.setInterval(function(){
+    clickElement(universe.measures.mass.total, 'hydrogen');
+}, 1000);
 
 /* 
 RELATIONSHIP BETWEEN MATERIALS AND UNITS OF MEASURE
