@@ -1,62 +1,134 @@
-// TODO: introduce an element of randomness into the game via cosmic dust with variable elemental content.
+/* eslint-disable no-unused-vars */
 
 // initialise the universe
-let universe = {
-    elements: {
-        hydrogen: {
-            name: 'hydrogen',
-            total: 0,
-            symbol: 'H'
-        },
-        helium: {
-            name: 'helium',
-            total: 0,
-            symbol: 'He'
-        }
-    },
-    measures: {
-        time: {
-            name: 'time',
-            total: 0,
-            symbol: 's'
-        },
-        mass: {
-            name: 'mass',
-            total: 0,
-            symbol: 'kg'
-        },
-        temperature: {
-            name: 'temperature',
-            total: 0,
-            symbol: 'K'
-        },
-        pressure: {
-            name: 'pressure',
-            total: 0,
-            symbol: 'P'
-        }
-    },
-    formations: {
-        wisp: {
-            name: 'wisp',
-            requires: {
-                hydrogen: 0
-            }
-        },
-        cloud: {
-            name: 'cloud',
-            requires: {
-                hydrogen: 20
-            }
-        },
-        denseclump: {
-            name: 'dense clump',
-            requires: {
-                hydrogen: 100
-            }
-        }
-    }
+let currentFormation = 'wisp',
+	nextFormationCost = 100,
+	progress = 0,
+	hydrogen = 0,
+	hydrogenTotal = 0,
+	hydrogenPS = 0,
+	helium = 0,
+	heliumTotal = 0,
+	heliumPS = 0,
+	mass = 0,
+	massCost = 10,
+	massTotal = 0,
+	time = 0,
+	temperature = 0,
+	pressure = 0;
+
+updateUI();
+
+// update UI with resource totals
+function updateUI() {
+	// update resources
+	$('#hydrogen').text(hydrogen);
+	$('#helium').text(helium);
+
+	// update measures
+	$('#time').text(time + 's');
+	$('#mass').text(mass);
+	$('#temperature').text(temperature);
+	$('#pressure').text(pressure);
+
+	// update costs
+	$('#massCost').text('(' + massCost + 'H)');
+
+	// update rates
+	$('#hps').text(hydrogenPS + ' H/s');
+
+	// updates current formation
+	$('#currentFormation').text(currentFormation);
+
+	//disable buttons that are too expensive
+	if ( hydrogen < massCost) {
+		$('#addMass')
+		.attr('data-toggle', 'tooltip')
+		.attr('data-placement', 'right')
+		.attr('title', 'not enough H');
+	};
+}
+
+// increase hydrogen everytime hydrogen is clicked
+$('#drawHydrogen').on('click', function() {
+	hydrogen += 1;
+	updateUI();
+});
+
+// add mass
+$('#addMass').on('click', function() {
+	if ( hydrogen < massCost ) {} else {
+		// increment mass
+		mass++;
+		// increment hydrogen per second
+		hydrogenPS++;
+		// subtract mass cost from hydrogen
+		hydrogen -= massCost;
+		// increase mass cost
+		massCost = Math.ceil(massCost * 1.1);
+		// update formation progress
+		updateProgress();
+	}
+});
+
+// and then there was time
+function timer() {
+	time++;
+}
+
+// figures out current formation stage and set it in universe.currentFormation
+function checkFormation() {
+	if ( mass < 100 ) {
+		currentFormation = 'wisp';
+	} else if ( mass > 1000 ) {
+		currentFormation = 'small cloud';
+		nextFormationCost = 10000;
+	} else if ( mass > 10000 ) {
+		currentFormation = 'large cloud';
+		nextFormationCost = 100000;
+	} else if ( mass > 100000 ) {
+		currentFormation = 'small clump';
+		nextFormationCost = 1000000;
+	} else if ( mass > 1000000 ) {
+		currentFormation = 'large clump';
+		nextFormationCost = 10000000;
+	} else if ( mass > 10000000 ) {
+		currentFormation = 'protostar';
+		nextFormationCost = 100000000;
+	}
 };
+
+// update formation progress bar
+function updateProgress() {
+	progress++;
+	$('#pbar').css('width', progress + '%').attr('aria-valuenow', progress);
+	$('#pbar').text(progress + '%');
+}
+
+// game loop
+window.setInterval(function(){
+
+	hydrogen += hydrogenPS;
+
+	checkFormation();
+	timer();
+	updateUI();
+}, 1000);
+
+// save game
+function save() {
+	localStorage.setItem('save', JSON.stringify(universe));
+	console.log(JSON.parse(localStorage.getItem('save')));
+}
+
+// load game
+function load() {
+	var gamesave = JSON.parse(localStorage.getItem('save'));
+
+	if (typeof gamesave.elements.hydrogen.total !== "undefined") universe.elements.hydrogen.total = gamesave.elements.hydrogen.total;
+	if (typeof gamesave.elements.helium.total !== "undefined") universe.elements.helium.total = gamesave.elements.helium.total;
+	if (typeof gamesave.measures.mass.total !== "undefined") universe.measures.mass.total = gamesave.measures.mass.total;
+}
 
 /* 
 STEPS TO STAR FORMATION
@@ -80,68 +152,7 @@ star stages:
     fast stellar winds
 - pre-main sequence star
 - main sequence star
-*/
-
-// generic clicker function
-function clickElement(number, element) {
-    let targetElement = universe.elements[element]; // address element
-    targetElement.total += number; // increment element total
-    document.getElementById( element ).innerHTML = targetElement.total; // update interface with new total
-}
-
-// acquire mass function
-function addMass() {
-    let massCost = Math.floor(10 * Math.pow(1.1,universe.measures.mass.total));
-    if (universe.elements.hydrogen.total >= massCost) {
-        universe.measures.mass.total += 1;
-        universe.elements.hydrogen.total = universe.elements.hydrogen.total - massCost;
-        document.getElementById('hydrogen').innerHTML = universe.elements.hydrogen.total;
-        document.getElementById('mass').innerHTML = universe.measures.mass.total;
-    }
-    let nextCost = Math.floor(10 * Math.pow(1.1,universe.measures.mass.total));
-    document.getElementById('massCost').innerText = `(${nextCost}H)`;
-} 
-
-
-// save game function
-function save() {
-    localStorage.setItem('save', JSON.stringify(universe));
-    console.log(JSON.parse(localStorage.getItem('save')));
-}
-
-// load game function
-function load() {
-    var gamesave = JSON.parse(localStorage.getItem('save'));
-
-    if (typeof gamesave.elements.hydrogen.total !== "undefined") universe.elements.hydrogen.total = gamesave.elements.hydrogen.total;
-    if (typeof gamesave.elements.helium.total !== "undefined") universe.elements.helium.total = gamesave.elements.helium.total;
-    if (typeof gamesave.measures.mass.total !== "undefined") universe.measures.mass.total = gamesave.measures.mass.total;
-}
-
-// functions sandbox
-/* 
-check universe.elements.hydrogen.total
-against universe.formations.[i].requires.hydrogen
-*/
-
-// function checkNextFormation() {
-//     for (let index = 0; index < array.length; index++) {
-//         const number = array[index];
-//         if (universe.elements.hydrogen.total >= universe.formations) {
-            
-//         }
-//     }
-// }
-
-
-
-
-// game loop
-window.setInterval(function(){
-    clickElement(universe.measures.mass.total, 'hydrogen');
-}, 1000);
-
-/* 
+ 
 RELATIONSHIP BETWEEN MATERIALS AND UNITS OF MEASURE
 increase in hydrogen = increase in pressure & mass
 
@@ -175,4 +186,3 @@ supernovae
 young massive stars
     UV & fast stellar winds blow materials into 'walls'
 */
-
